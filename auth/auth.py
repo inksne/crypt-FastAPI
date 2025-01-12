@@ -36,7 +36,7 @@ async def auth_user_issue_jwt(response: Response, user: User = Depends(validate_
             httponly=False,
               secure=False,
                 samesite="Lax",
-                 max_age=int(timedelta(minutes=5).total_seconds()))
+                  max_age=int(timedelta(minutes=5).total_seconds()))
     
     response.set_cookie(
         key="refresh_token",
