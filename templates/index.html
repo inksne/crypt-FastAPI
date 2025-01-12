@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+<title>Курс криптовалют</title>
+{% block styles %}
+    {{ super() }}
+    <style>
+        h1, p {
+            text-align: center;
+            color: white
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <script>
+        let socket = new WebSocket("ws://localhost:8000/ws/crypt_prices");
+        
+        socket.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            if (data.error) {
+                alert("Ошибка получения данных: " + data.error);
+                return;
+            }
+
+            document.getElementById('btc').textContent = "BTC: " + data.BTCUSDT;
+            document.getElementById('eth').textContent = "ETH: " + data.ETHUSDT;
+            document.getElementById('bnb').textContent = "BNB: " + data.BNBUSDT;
+            document.getElementById('xrp').textContent = "XRP: " + data.XRPUSDT;
+            document.getElementById('ada').textContent = "ADA: " + data.ADAUSDT;
+        };
+
+        socket.onerror = function(event) {
+            alert("Ошибка WebSocket: " + event);
+        };
+    </script>
+    <h1>Курс популярных криптовалют</h1>
+    <p id="btc">BTC: Загружается...</p>
+    <p id="eth">ETH: Загружается...</p>
+    <p id="bnb">BNB: Загружается...</p>
+    <p id="xrp">XRP: Загружается...</p>
+    <p id="ada">ADA: Загружается...</p>
+{% endblock %}
