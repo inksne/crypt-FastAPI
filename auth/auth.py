@@ -40,6 +40,7 @@ async def register(
     password: str = Form(...),
     session: AsyncSession = Depends(get_async_session)
 ):
+    '''регистрация: создание пользователя с захэшированным паролем'''
     try:
         hashed_password = hash_password(password).decode('utf-8')
         new_user = User(username=username, password=hashed_password, email=email)
@@ -109,7 +110,6 @@ async def auth_user_check_self_info(
 @router.post('/logout')
 async def logout(response: Response):
     '''удаление токена из куки и перенаправление на главную страницу'''
-    
     response.delete_cookie(key="access_token", httponly=False, secure=False, samesite="Lax")
     response.delete_cookie(key="refresh_token", httponly=False, secure=False, samesite="Lax")
 
