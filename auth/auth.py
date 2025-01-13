@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends, Response
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Depends, Response, Form, HTTPException
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.security import HTTPBearer
+from starlette import status
 
 from auth.helpers import create_access_token, create_refresh_token
 from auth.validation import (
@@ -9,12 +10,19 @@ from auth.validation import (
     get_current_auth_user,
     validate_auth_user_db
 )
+from auth.utils import hash_password
+
+from database.database import get_async_session
 from database.models import User
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
 
 from pydantic import BaseModel
 from datetime import timedelta
 
+
 http_bearer = HTTPBearer(auto_error=False)
+
 
 class TokenInfo(BaseModel):
     access_token: str
@@ -23,6 +31,26 @@ class TokenInfo(BaseModel):
 
 
 router = APIRouter(prefix='/jwt', tags=["JWT"], dependencies=[Depends(http_bearer)])
+
+
+@router.post('/register')
+async def register(
+    username: str = Form(...),
+    email: str = Form(...),
+    password: str = Form(...),
+    session: AsyncSession = Depends(get_async_session)
+):
+    try:
+        hashed_password = hash_password(password).decode('utf-8')
+        new_user = User(username=username, password=hashed_password, email=email)
+
+        session.add(new_user)
+        await session.commit()
+        await session.refresh(new_user)
+
+        return RedirectResponse('/jwt/login/', status_code=status.HTTP_303_SEE_OTHER)
+    except IntegrityError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Данное имя пользователя уже используется. Попробуйте другое.')
 
 
 @router.post('/login/', response_model=TokenInfo)
