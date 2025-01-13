@@ -1,0 +1,185 @@
+{% extends "authenticated.html" %}
+
+<title>{{ crypto.symbol }} - Детали</title>
+
+{% block styles %}
+    {{ super() }}
+    <style>
+        .container {
+            display: flex;
+            justify-content: flex-start;
+            padding: 20px;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .crypto-details {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            background-color: rgba(0, 0, 0, 0);
+            color: white;
+            border-radius: 10px;
+            border: 2px solid #777;
+            padding: 20px;
+            width: 40%;
+        }
+
+        .crypto-details img {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+        }
+
+        .crypto-details h2 {
+            font-size: 24px;
+            margin: 0;
+            color: #f5f5f5;
+        }
+
+        .price {
+            font-size: 20px;
+            margin-top: 10px;
+            color: #76ff03;
+        }
+
+        .status {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+
+        .chart-container {
+            width: 60%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #1e1e1e;
+            border: 2px solid #777;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .chart-container canvas {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="crypto-details">
+            {% if crypto.symbol == 'BTCUSDT' %}
+                <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" alt="{{ crypto.symbol }} logo">
+            {% elif crypto.symbol == 'ETHUSDT' %}
+                <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" alt="{{ crypto.symbol }} logo">
+            {% elif crypto.symbol == 'BNBUSDT' %}
+                <img src="https://cryptologos.cc/logos/binance-coin-bnb-logo.png" alt="{{ crypto.symbol }} logo">
+            {% elif crypto.symbol == 'AIXBTUSDT' %}
+                <img src="https://cryptologos.cc/logos/aixbt-aixbt-logo.png" alt="{{ crypto.symbol }} logo">
+            {% elif crypto.symbol == 'CGPTUSDT' %}
+                <img src="https://s2.coinmarketcap.com/static/img/coins/64x64/9447.png" alt="{{ crypto.symbol }} logo">
+            {% elif crypto.symbol == 'COOKIEUSDT' %}
+                <img src="https://static.coinpaprika.com/storage/currencies/cook-cookie-coin-logo.png" alt="{{ crypto.symbol }} logo">
+            {% elif crypto.symbol == 'TFUELUSDT' %}
+                <img src="https://cryptologos.cc/logos/theta-fuel-tfuel-logo.png?v=040" alt="{{ crypto.symbol }} logo">
+            {% elif crypto.symbol == 'AVAXUSDT' %}
+                <img src="https://cryptologos.cc/logos/avalanche-avax-logo.png" alt="{{ crypto.symbol }} logo">
+            {% elif crypto.symbol == 'SOLUSDT' %}
+                <img src="https://cryptologos.cc/logos/solana-sol-logo.png" alt="{{ crypto.symbol }} logo">
+            {% endif %}
+            <h2>{{ crypto.symbol }}</h2>
+            <div class="price" id="crypto-price">
+                Текущая цена: {{ crypto.price }} USDT
+            </div>
+            <div class="status" id="crypto-status">
+                {% if crypto.status == "растёт" %}
+                    <span style="color: #76ff03;">{{ crypto.status }}</span>
+                {% elif crypto.status == "падает" %}
+                    <span style="color: #ff1744;">{{ crypto.status }}</span>
+                {% else %}
+                    <span style="color: #f5f5f5;">{{ crypto.status }}</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="chart-container">
+            <canvas id="crypto-chart"></canvas>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let previousPrice = null;
+
+        const ctx = document.getElementById('crypto-chart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['10s ago', '8s ago', '6s ago', '4s ago', '2s ago', 'Now'],
+                datasets: [{
+                    label: 'Price in USDT',
+                    data: [0, 0, 0, 0, 0, "{{ crypto.price }}"],
+                    borderColor: '#76ff03',
+                    backgroundColor: 'rgba(118, 255, 3, 0.2)',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+            }
+        });
+
+        const socket = new WebSocket("ws://localhost:8000/ws/crypt_prices");
+
+        socket.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            const symbol = "{{ crypto.symbol }}";
+
+            if (data[symbol]) {
+                const price = data[symbol].price;
+                const statusElement = document.getElementById('crypto-status');
+                let status = "";
+
+                if (previousPrice !== null) {
+                    if (parseFloat(price) > parseFloat(previousPrice)) {
+                        status = "растёт";
+                        statusElement.innerHTML = '<span style="color: #76ff03;">растёт</span>';
+                    } else if (parseFloat(price) < parseFloat(previousPrice)) {
+                        status = "падает";
+                        statusElement.innerHTML = '<span style="color: #ff1744;">падает</span>';
+                    } else {
+                        status = "стабильно";
+                        statusElement.innerHTML = '<span style="color: #f5f5f5;">стабильно</span>';
+                    }
+                } else {
+                    status = "стабильно";
+                    statusElement.innerHTML = '<span style="color: #f5f5f5;">стабильно</span>';
+                }
+
+                previousPrice = price;
+
+                const priceElement = document.getElementById('crypto-price');
+                priceElement.textContent = "Текущая цена: " + price + " USDT";
+
+                chart.data.datasets[0].data.shift();
+                chart.data.datasets[0].data.push(parseFloat(price));
+                chart.update();
+            }
+        };
+
+        socket.onopen = function() {
+            console.log("WebSocket connected");
+        };
+
+        socket.onerror = function(error) {
+            console.log("WebSocket Error: ", error);
+        };
+
+        socket.onclose = function() {
+            console.log("WebSocket closed");
+        };
+    </script>
+{% endblock %}
