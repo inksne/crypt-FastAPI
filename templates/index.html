@@ -3,9 +3,69 @@
 {% block styles %}
     {{ super() }}
     <style>
-        h1, p {
+        body {
+            font-family: Verdana;
+            background-color: #12161C;
+            color: white;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            height: 100vh;
+            align-items: flex-start;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            width: 80%;
+            margin-top: 2%;
+        }
+
+        .left-container, .center-container, .right-container {
+            width: 20%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .crypto-card {
+            width: 200px;
+            background: rgba(0, 0, 0, 0);
+            border: 2px solid #777;
+            border-radius: 10px;
+            padding: 15px;
             text-align: center;
-            color: white
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .crypto-card:hover {
+            transform: scale(1.05);
+            border-color: #f5f5f5;
+        }
+
+        .crypto-card img {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 10px;
+        }
+
+        .crypto-card h4 {
+            margin: 5px 0;
+            font-size: 18px;
+            color: #f5f5f5;
+        }
+
+        .crypto-card .price {
+            font-size: 16px;
+            color: #76ff03;
+        }
+
+        .section-title {
+            font-size: 22px;
+            color: #f5f5f5;
+            margin-bottom: 15px;
+            text-align: center;
         }
     </style>
 {% endblock %}
@@ -13,29 +73,113 @@
 {% block content %}
     <script>
         let socket = new WebSocket("ws://localhost:8000/ws/crypt_prices");
-        
-        socket.onmessage = function(event) {
-            const data = JSON.parse(event.data);
-            if (data.error) {
-                alert("Ошибка получения данных: " + data.error);
-                return;
-            }
+        socket.onopen = function() {
+            console.log("WebSocket соединение установлено.");
+        };
 
-            document.getElementById('btc').textContent = "BTC: " + data.BTCUSDT;
-            document.getElementById('eth').textContent = "ETH: " + data.ETHUSDT;
-            document.getElementById('bnb').textContent = "BNB: " + data.BNBUSDT;
-            document.getElementById('xrp').textContent = "XRP: " + data.XRPUSDT;
-            document.getElementById('ada').textContent = "ADA: " + data.ADAUSDT;
+        socket.onmessage = function(event) {
+            try {
+                const data = JSON.parse(event.data);
+                console.log("Received data:", data);
+
+                if (data.BTCUSDT) {
+                    document.getElementById('btc-price').textContent = data.BTCUSDT + " USDT";
+                }
+                if (data.ETHUSDT) {
+                    document.getElementById('eth-price').textContent = data.ETHUSDT + " USDT";
+                }
+                if (data.BNBUSDT) {
+                    document.getElementById('bnb-price').textContent = data.BNBUSDT + " USDT";
+                }
+                if (data.AIXBTUSDT) {
+                    document.getElementById('aixbt-price').textContent = data.AIXBTUSDT + " USDT";
+                }
+                if (data.CGPTUSDT) {
+                    document.getElementById('cgpt-price').textContent = data.CGPTUSDT + " USDT";
+                }
+                if (data.COOKIEUSDT) {
+                    document.getElementById('cook-price').textContent = data.COOKIEUSDT + " USDT";
+                }
+                if (data.TFUELUSDT) {
+                    document.getElementById('tfuel-growth-price').textContent = data.TFUELUSDT + " USDT";
+                }
+                if (data.AVAXUSDT) {
+                    document.getElementById('avax-growth-price').textContent = data.AVAXUSDT + " USDT";
+                }
+                if (data.SOLUSDT) {
+                    document.getElementById('sol-growth-price').textContent = data.SOLUSDT + " USDT";
+                }
+
+            } catch (error) {
+                console.error("Ошибка обработки данных WebSocket:", error);
+            }
         };
 
         socket.onerror = function(event) {
-            alert("Ошибка WebSocket: " + event);
+            console.error("Ошибка WebSocket:", event);
+        };
+
+        socket.onclose = function(event) {
+            console.log("WebSocket соединение закрыто:", event);
         };
     </script>
-    <h1>Курс популярных криптовалют</h1>
-    <p id="btc">BTC: Загружается...</p>
-    <p id="eth">ETH: Загружается...</p>
-    <p id="bnb">BNB: Загружается...</p>
-    <p id="xrp">XRP: Загружается...</p>
-    <p id="ada">ADA: Загружается...</p>
+
+    <div class="container">
+        <div class="left-container">
+            <h3 class="section-title">Популярные криптовалюты</h3>
+            <div class="crypto-card">
+                <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" alt="BTC">
+                <h4>Bitcoin (BTC)</h4>
+                <div class="price" id="btc-price">Загружается...</div>
+            </div>
+            <div class="crypto-card">
+                <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" alt="ETH">
+                <h4>Ethereum (ETH)</h4>
+                <div class="price" id="eth-price">Загружается...</div>
+            </div>
+            <div class="crypto-card">
+                <img src="https://cryptologos.cc/logos/binance-coin-bnb-logo.png" alt="BNB">
+                <h4>Binance Coin (BNB)</h4>
+                <div class="price" id="bnb-price">Загружается...</div>
+            </div>
+        </div>
+
+        <div class="center-container">
+            <h3 class="section-title">Новые криптовалюты</h3>
+            <div class="crypto-card">
+                <!-- <img src="https://cryptologos.cc/logos/aixbt-aixbt-logo.png" alt="AIXBT"> -->
+                <h4>AIXBT (AIXBT)</h4>
+                <div class="price" id="aixbt-price">Загружается...</div>
+            </div>
+            <div class="crypto-card">
+                <img src="https://s2.coinmarketcap.com/static/img/coins/64x64/9447.png" alt="CGPT">
+                <h4>CGPT (CGPT)</h4>
+                <div class="price" id="cgpt-price">Загружается...</div>
+            </div>
+            <div class="crypto-card">
+                <!-- <img src="https://static.coinpaprika.com/storage/currencies/cook-cookie-coin-logo.png" alt="COOK"> -->
+                <h4>Cookie (COOK)</h4>
+                <div class="price" id="cook-price">Загружается...</div>
+            </div>
+        </div>
+
+        <div class="right-container">
+            <h3 class="section-title">Быстрорастущие криптовалюты</h3>
+            <div class="crypto-card">
+                <img src="https://cryptologos.cc/logos/theta-fuel-tfuel-logo.png?v=040" alt="TFUEL">
+                <h4>TFUEL (TFUEL)</h4>
+                <div class="price" id="tfuel-growth-price">Загружается...</div>
+            </div>
+            <div class="crypto-card">
+                <img src="https://cryptologos.cc/logos/avalanche-avax-logo.png" alt="AVAX">
+                <h4>Avalanche (AVAX)</h4>
+                <div class="price" id="avax-growth-price">Загружается...</div>
+            </div>
+            <div class="crypto-card">
+                <img src="https://cryptologos.cc/logos/solana-sol-logo.png" alt="SOL">
+                <h4>Solana (SOL)</h4>
+                <div class="price" id="sol-growth-price">Загружается...</div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

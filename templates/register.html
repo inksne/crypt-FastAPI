@@ -139,7 +139,7 @@
             };
     
             try {
-                const response = await fetch('/register', {
+                const response = await fetch('/jwt/register', {
                     method: 'POST',
                     body: new URLSearchParams(data), 
                 });

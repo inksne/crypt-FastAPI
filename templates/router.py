@@ -18,7 +18,7 @@ async def get_base_page(request: Request):
     return templates.TemplateResponse(request, 'about_us.html')
 
 
-@router.get('/register', response_class=HTMLResponse)
+@router.get('/jwt/register', response_class=HTMLResponse)
 async def get_register_page(request: Request):
     return templates.TemplateResponse(request, 'register.html')
 
