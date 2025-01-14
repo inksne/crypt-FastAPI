@@ -83,31 +83,31 @@
                 console.log("Received data:", data);
 
                 if (data.BTCUSDT) {
-                    document.getElementById('btc-price').textContent = data.BTCUSDT + " USDT";
+                    document.getElementById('btc-price').textContent = data.BTCUSDT.price + " USDT";
                 }
                 if (data.ETHUSDT) {
-                    document.getElementById('eth-price').textContent = data.ETHUSDT + " USDT";
+                    document.getElementById('eth-price').textContent = data.ETHUSDT.price + " USDT";
                 }
                 if (data.BNBUSDT) {
-                    document.getElementById('bnb-price').textContent = data.BNBUSDT + " USDT";
+                    document.getElementById('bnb-price').textContent = data.BNBUSDT.price + " USDT";
                 }
                 if (data.AIXBTUSDT) {
-                    document.getElementById('aixbt-price').textContent = data.AIXBTUSDT + " USDT";
+                    document.getElementById('aixbt-price').textContent = data.AIXBTUSDT.price + " USDT";
                 }
                 if (data.CGPTUSDT) {
-                    document.getElementById('cgpt-price').textContent = data.CGPTUSDT + " USDT";
+                    document.getElementById('cgpt-price').textContent = data.CGPTUSDT.price + " USDT";
                 }
                 if (data.COOKIEUSDT) {
-                    document.getElementById('cook-price').textContent = data.COOKIEUSDT + " USDT";
+                    document.getElementById('cook-price').textContent = data.COOKIEUSDT.price + " USDT";
                 }
                 if (data.TFUELUSDT) {
-                    document.getElementById('tfuel-growth-price').textContent = data.TFUELUSDT + " USDT";
+                    document.getElementById('tfuel-growth-price').textContent = data.TFUELUSDT.price + " USDT";
                 }
                 if (data.AVAXUSDT) {
-                    document.getElementById('avax-growth-price').textContent = data.AVAXUSDT + " USDT";
+                    document.getElementById('avax-growth-price').textContent = data.AVAXUSDT.price + " USDT";
                 }
                 if (data.SOLUSDT) {
-                    document.getElementById('sol-growth-price').textContent = data.SOLUSDT + " USDT";
+                    document.getElementById('sol-growth-price').textContent = data.SOLUSDT.price + " USDT";
                 }
 
             } catch (error) {

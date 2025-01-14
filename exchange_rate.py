@@ -14,11 +14,9 @@ router = APIRouter(tags=['Crypt'])
 
 redis = Redis(host='127.0.0.1', port=6379, db=0)
 
-
 async def save_price_in_redis(symbol: str, price: float, status: str):
     timestamp = int(asyncio.get_event_loop().time())
     redis.zadd(symbol, {timestamp: price})
-    # Save status too
     redis.set(f"{symbol}_status", status)
 
 
