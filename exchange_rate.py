@@ -81,7 +81,7 @@ async def get_crypto_details(request: Request, symbol: str):
                 "price": price,
             }
 
-            return templates.TemplateResponse("crypto_details.html", {"request": request, "crypto": crypto_data})
+            return templates.TemplateResponse(request, "crypto_details.html", {"crypto": crypto_data})
         
         except httpx.HTTPStatusError:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Криптовалюта не найдена")
