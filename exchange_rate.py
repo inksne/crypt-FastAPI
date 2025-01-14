@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, WebSocketException
 from fastapi.responses import HTMLResponse
 from fastapi.websockets import WebSocket, WebSocketDisconnect
 from starlette import status
@@ -107,4 +107,4 @@ async def websocket_endpoint(websocket: WebSocket):
     except RuntimeError:
         pass
     except WebSocketDisconnect:
-        raise HTTPException(status_code=status.WS_1000_NORMAL_CLOSURE)
+        raise WebSocketException(code=status.WS_1000_NORMAL_CLOSURE)
