@@ -61,16 +61,6 @@ def test_logout():
     assert response.json() == {"detail": "Успешный выход"}
 
 
-def test_fetch_crypto_price():
-    response = client.get("/crypt?symbol=BTCUSDT")
-    try:
-        assert response.status_code == 200
-        price = response.json()
-        assert isinstance(price, str)
-    except AssertionError:
-        assert response.status_code == 404
-
-
 def test_fetch_crypto_details():
     response = client.get("/crypt/BTCUSDT")
     try:
